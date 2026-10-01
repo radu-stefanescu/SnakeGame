@@ -14,12 +14,13 @@ namespace WindowsFormsApp1
         private int score = 0;
 
         private const int TileSize = 20;   
-        private const int GridWidth = 20;
-        private const int GridHeight = 20;
+        private const int GridWidth = 23;
+        private const int GridHeight = 23;
 
         private Timer gameTimer;
         private Random rand = new Random();
         private bool isGameOver = false;
+        private bool isSpecialFood = false;
 
         public Form1()
         {
@@ -63,8 +64,8 @@ namespace WindowsFormsApp1
             int x = rand.Next(0, GridWidth);
             int y = rand.Next(0, GridHeight);
             food = new Point(x, y);
+            isSpecialFood = rand.Next(100) < 20;
         }
-
 
         private void UpdateGame(object sender, EventArgs e)
         {
@@ -72,7 +73,6 @@ namespace WindowsFormsApp1
             {
                 return;
             }
-
 
             Point head = snake[0];
             Point newHead = new Point(head.X + directionX, head.Y + directionY);
@@ -96,7 +96,13 @@ namespace WindowsFormsApp1
 
             if (newHead == food)
             {
-                score += 10;
+                score += isSpecialFood ? 20 : 10;
+                
+                if (isSpecialFood)
+                {
+                    snake.Add(snake[snake.Count - 1]);
+                }
+
                 this.Text = "Snake Game - Score: " + score;
                 GenerateFood();
             }
@@ -107,6 +113,7 @@ namespace WindowsFormsApp1
 
             this.Invalidate();
         }
+
         private void GameOver()
         {
             isGameOver = true;
@@ -137,8 +144,8 @@ namespace WindowsFormsApp1
             base.OnPaint(e);
             Graphics g = e.Graphics;
 
-
-            g.FillRectangle(Brushes.Red, food.X*TileSize, food.Y*TileSize, TileSize, TileSize);
+            Brush foodBrush = isSpecialFood ? Brushes.Purple : Brushes.Red;
+            g.FillRectangle(foodBrush, food.X*TileSize, food.Y*TileSize, TileSize, TileSize);
 
             for (int i = 0; i < snake.Count; i++)
             {
